@@ -27,7 +27,7 @@
         path (-> "test_oso.polar"
                  io/resource
                  io/file
-                 .getAbsolutePath)]
+                 .getPath)]
     (doto oso
       (register-class Map "User")
       (register-class Map "Widget")
@@ -36,5 +36,20 @@
     (let [user {"name" "guest"}
           widget {"id" 1}]
       (assert (.isAllowed oso user "get" widget))))
-  ;;
+
+  ;; this block crashes with several exceptions:
+  ;; resource.role(actor) = "admin" fails (among others)
+  (let [oso (new-oso)
+        path (-> "test_oso.polar"
+                 io/resource
+                 io/file
+                 .getPath)]
+    (doto oso
+      (register-class Map "User")
+      (register-class Map "Company")
+      (load-files [path]))
+    (let [user {"name" "president"}
+          company {"id" 1}]
+      (.isAllowed oso user "create" company)))
+;;
   )
